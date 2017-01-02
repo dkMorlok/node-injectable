@@ -15,7 +15,7 @@
   "author": "Dusan Kmet <morlokdk@gmail.com>",
   "license": "MIT",
   "engines" : {
-    "node" : ">=4.0"
+    "node" : ">=6.0"
   },
   "dependencies": {
     "bluebird": "^3.4.7",
