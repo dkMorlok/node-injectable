@@ -1,0 +1,36 @@
+{
+  "name": "injectable",
+  "version": "0.0.1",
+  "description": "Dependency injection for nodejs on steroids",
+  "main": "index.js",
+  "scripts": {
+    "test": "nyc --reporter=text --reporter=lcov jasmine",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "keywords": [
+    "dependency",
+    "injection",
+    "anotations"
+  ],
+  "author": "Dusan Kmet <morlokdk@gmail.com>",
+  "license": "MIT",
+  "engines" : {
+    "node" : ">=4.0"
+  },
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "caller": "^1.0.1",
+    "multi-glob": "^1.0.1"
+  },
+  "devDependencies": {
+    "coveralls": "^2.11.15",
+    "jasmine": "^2.5.2",
+    "nyc": "^10.0.0"
+  },
+  "nyc": {
+    "tempDirectory": "./node_modules/.nyc_temp",
+    "exclude": [
+      "spec/**/*.js"
+    ]
+  }
+}
