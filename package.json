@@ -7,6 +7,10 @@
     "test": "nyc --reporter=text --reporter=lcov jasmine",
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dkMorlok/node-injectable.git"
+  },
   "keywords": [
     "dependency",
     "injection",
@@ -14,6 +18,7 @@
   ],
   "author": "Dusan Kmet <morlokdk@gmail.com>",
   "license": "MIT",
+  "homepage": "https://github.com/dkMorlok/node-injectable",
   "engines" : {
     "node" : ">=6.0"
   },
