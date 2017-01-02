@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/dkMorlok/node-injectable/badge.svg)](https://coveralls.io/github/dkMorlok/node-injectable)
 
 A simple library for dependency injection with support for ES6 generators. For more information about this pattern look at:
-http://en.wikipedia.org/wiki/Dependency_injection and http://en.wikipedia.org/wiki/Inversion_of_control
+[Dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) and [Inversion of control](http://en.wikipedia.org/wiki/Inversion_of_control).
 
 
 ## Install
