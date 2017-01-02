@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/dkMorlok/node-injectable.svg?branch=master)](https://travis-ci.org/dkMorlok/node-injectable)
 [![Coverage Status](https://coveralls.io/repos/github/dkMorlok/node-injectable/badge.svg)](https://coveralls.io/github/dkMorlok/node-injectable)
+[![npm version](https://badge.fury.io/js/node-injectable.svg)](https://badge.fury.io/js/node-injectable)
 
 A simple library for dependency injection with support for ES6 generators. For more information about this pattern look at:
 [Dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) and [Inversion of control](http://en.wikipedia.org/wiki/Inversion_of_control).
