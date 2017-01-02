@@ -1,4 +1,4 @@
-# Injectable
+# node-injectable
 
 [![Build Status](https://travis-ci.org/dkMorlok/node-injectable.svg?branch=master)](https://travis-ci.org/dkMorlok/node-injectable)
 [![Coverage Status](https://coveralls.io/repos/github/dkMorlok/node-injectable/badge.svg)](https://coveralls.io/github/dkMorlok/node-injectable)
@@ -10,7 +10,7 @@ A simple library for dependency injection with support for ES6 generators. For m
 
 ## Install
 
-`$ npm install --save injectable`
+`$ npm install --save node-injectable`
 
 ## Examples
 
@@ -37,7 +37,7 @@ module.export = {
 }
 
 // index.js
-let injectable = require('injectable')
+let injectable = require('node-injectable')
 let container = new injectable.Container()
 container.lookup(['src/**/*.js']).then(() => {
   container.resolve('foo').then((foo) => {
@@ -51,7 +51,7 @@ container.lookup(['src/**/*.js']).then(() => {
 
 Or container can be setup manualy
 ```js
-let injectable = require('injectable')
+let injectable = require('node-injectable')
 let container = new injectable.Container()
 container.register('foo', function() {
 	return "foo"

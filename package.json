@@ -1,5 +1,5 @@
 {
-  "name": "injectable",
+  "name": "node-injectable",
   "version": "0.0.1",
   "description": "Dependency injection for nodejs on steroids",
   "main": "index.js",
