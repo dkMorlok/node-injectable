@@ -8,18 +8,74 @@ A simple library for dependency injection with support for ES6 generators. For m
 * http://en.wikipedia.org/wiki/Inversion_of_control
 
 
-### Install
+## Install
 
 `$ npm install --save injectable`
 
+## Examples
 
-### Contributing
+You can use annotations to automatically setup Container
+```js
+// src/modules-foo.js
+module.export = {
+  /**
+   * @injectable(foo)
+   */
+  createFoo: function() {
+    return "foo"
+  }
+}
+
+// src/modules-bar.js
+module.export = {
+  /**
+   * @injectable(bar)
+   */
+  createBar: function(foo) {
+    return foo + "bar"
+  }
+}
+
+// index.js
+let injectable = require('injectable')
+let container = new injectable.Container()
+container.lookup(['src/**/*.js']).then(() => {
+  container.resolve('foo').then((foo) => {
+    console.log(foo) // print "foo"
+  })
+  container.resolve('bar').then((bar) => {
+    console.log(bar) // print "foobar"
+  })
+})
+```
+
+Or container can be setup manualy
+```js
+let injectable = require('injectable')
+let container = new injectable.Container()
+container.register('foo', function() {
+	return "foo"
+})
+container.register('bar', function(foo) {
+  return foo + "bar"
+})
+
+container.resolve('foo').then((foo) => {
+  console.log(foo) // print "foo"
+})
+container.resolve('bar').then((bar) => {
+  console.log(bar) // print "foobar"
+})
+```
+
+
+## Contributing
 
 When submitting your pull-request try to follow those guides:
 * https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github
 * https://medium.com/@vadimdemedes/making-your-first-contribution-de6576ddb190
 
 
-### Licence
+## Licence
 
 MIT © Dusan Kmet
