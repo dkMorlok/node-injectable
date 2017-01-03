@@ -1,5 +1,9 @@
-module.exports.createOther = function () {
-	return 'other'
+// skipped inject of prop
+module.exports.skipped = 'skipper'
+
+// skipped inject of not-annotated function
+module.exports.createSkipped = function () {
+	return 'skipper'
 }
 
 /**
@@ -17,23 +21,23 @@ module.exports.createJediTwo = function () {
 }
 
 /**
- * @injectable(warriors1)
- * @param {String} jedi1 @inject(joda)
- * @param {String} jedi2 @inject(windu)
+ * @injectable()
  */
 module.exports.createWarriors1 = function (jedi1, jedi2) {
 	return [jedi1, jedi2]
 }
 
 /**
- * @injectable()
+ * @injectable(warriors2 joda,windu)
  */
 module.exports.createWarriors2 = function (joda, windu) {
 	return [joda, windu]
 }
 
 /**
- * @injectable(warriors3 joda,windu)
+ * @injectable(warriors3)
+ * @param {String} jedi1 @inject(joda)
+ * @param {String} jedi2 @inject(windu)
  */
 module.exports.createWarriors3 = function (jedi1, jedi2) {
 	return [jedi1, jedi2]

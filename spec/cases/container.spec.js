@@ -4,12 +4,12 @@ const injectable = require('../../index')
 describe('Container', function() {
 	let container
 
-	beforeEach(function() {
+	beforeEach(() => {
 		container = new injectable.Container()
 	})
 
-	describe('#add', function() {
-		it('should add module', function(done) {
+	describe('#add', () => {
+		it('should add module', (done) => {
 			container.add('module1', 'foo')
 			expect(container.has('module1')).toBe(true)
 			container.resolve('module1').then((module) => {
@@ -18,130 +18,130 @@ describe('Container', function() {
 			})
 		})
 
-		it('should add module when was removed', function() {
+		it('should add module when was removed', () => {
 			container.add('module1', 'foo')
 			container.remove('module1')
 			container.add('module1', 'foo')
 		})
 
-		it('should throw error when already added', function() {
+		it('should throw error when already added', () => {
 			container.add('module1', 'foo')
-			expect(function() {
+			expect(() => {
 				container.add('module1', 'bar')
 			}).toThrow()
 		})
 	})
 
-	describe('#remove', function() {
-		it('should throw error when module not exist', function() {
+	describe('#remove', () => {
+		it('should throw error when module not exist', () => {
 			container.add('module1', 'foo')
 			container.remove('module1')
-			expect(function() {
+			expect(() => {
 				container.remove('module1')
 			}).toThrow()
 		})
 	})
 
-	describe('#register', function() {
-		it('should register module', function(done) {
-			container.register('module1', function() {
+	describe('#register', () => {
+		it('should register module', (done) => {
+			container.register('module1', function () {
 				return 'foo'
 			})
-			container.resolve('module1').then(function(module) {
+			container.resolve('module1').then((module) => {
 				expect(module).toBe('foo')
 				return done()
-			}).catch(function(err) {
+			}).catch((err) => {
 				expect(err).toBe(undefined)
 				return done()
 			})
 		})
 
-		it('should throw error when already registered', function() {
-			container.register('module1', function() {
+		it('should throw error when already registered', () => {
+			container.register('module1', function () {
 				return 'foo'
 			})
-			expect(function() {
-				container.register('module1', function() {
+			expect(() => {
+				container.register('module1', function () {
 					return 'bar'
 				})
 			}).toThrow()
 		})
 
-		it('should throw error when missing factory function', function() {
-			expect(function() {
+		it('should throw error when missing factory function', () => {
+			expect(() => {
 				container.register('module1', ['dep1', 'dep2'])
 			}).toThrow()
 		})
 	})
 
-	describe('#resolve', function() {
-		it('should resolve same object', function(done) {
+	describe('#resolve', () => {
+		it('should resolve same object', (done) => {
 			let object = ['foo']
-			container.register('module1', function() {
+			container.register('module1', function () {
 				return object
 			})
-			container.resolve('module1').then(function(moduleA) {
+			container.resolve('module1').then((moduleA) => {
 				return container.resolve('module1')
-				.then(function(moduleB) {
+				.then((moduleB) => {
 					expect(moduleA).toBe(moduleB)
 					return done()
 				})
-			}).catch(function(err) {
+			}).catch((err) => {
 				expect(err).toBe(undefined)
 				return done()
 			})
 		})
 
-		it('should resolve module with dependencies', function(done) {
-			container.register('module1', function() {
+		it('should resolve module with dependencies', (done) => {
+			container.register('module1', function () {
 				return 'foo'
 			})
-			container.register('module2', function(module1) {
+			container.register('module2', function (module1) {
 				return module1 + 'bar'
 			})
-			container.resolve('module2').then(function(module) {
+			container.resolve('module2').then((module) => {
 				expect(module).toBe('foobar')
 				return done()
-			}).catch(function(err) {
+			}).catch((err) => {
 				expect(err).toBe(undefined)
 				return done()
 			})
 		})
 
-		it('should throw error when dependency missing', function(done) {
-			container.register('module1', function(moduleMissing) {
+		it('should throw error when dependency missing', (done) => {
+			container.register('module1', function (moduleMissing) {
 				return 'foo'
 			})
-			container.resolve('module1').then(function(module) {
+			container.resolve('module1').then((module) => {
 				expect(module).toBe(undefined)
 				return done()
-			}).catch(function(err) {
+			}).catch((err) => {
 				expect(err.message).toBe('Module module1 missing dependencies: moduleMissing')
 				return done()
 			})
 		})
 
-		it('should throw error when dependency has cycle on other module', function(done) {
-			container.register('module1', function(module2) {
+		it('should throw error when dependency has cycle on other module', (done) => {
+			container.register('module1', function (module2) {
 				return 'foo'
 			})
-			container.register('module2', function(module1) {
+			container.register('module2', function (module1) {
 				return 'bar'
 			})
-			container.resolve('module1').then(function(module) {
+			container.resolve('module1').then((module) => {
 				expect(module).toBe(undefined)
 				return done()
-			}).catch(function(err) {
+			}).catch((err) => {
 				expect(err.message).toBe('Module module1 has cycle dependencies: module1 -> module2 -> module1')
 				return done()
 			})
 		})
 
-		it('should throw error when module not exists', function(done) {
-			container.resolve('module1').then(function(module) {
+		it('should throw error when module not exists', (done) => {
+			container.resolve('module1').then((module) => {
 				expect(module).toBe(undefined)
 				return done()
-			}).catch(function(err) {
+			}).catch((err) => {
 				expect(err.message).toBe('Missing module module1')
 				return done()
 			})
@@ -150,16 +150,16 @@ describe('Container', function() {
 
 	describe('#inject', () => {
 		beforeEach(() => {
-			container.register('foo', function() {
+			container.register('foo', function () {
 				return 'foo'
 			})
-			container.register('bar', function() {
+			container.register('bar', function () {
 				return 'bar'
 			})
 		})
 
 		it('should inject dependencies by params', (done) => {
-			container.inject(function(foo, bar) {
+			container.inject(function (foo, bar) {
 				expect(foo).toBe('foo')
 				expect(bar).toBe('bar')
 				return done()
@@ -170,7 +170,7 @@ describe('Container', function() {
 		})
 
 		it('should inject dependencies by names', (done) => {
-			container.inject(['foo', 'bar', function(dep1, dep2) {
+			container.inject(['foo', 'bar', function (dep1, dep2) {
 				expect(dep1).toBe('foo')
 				expect(dep2).toBe('bar')
 				return done()

@@ -3,15 +3,8 @@ const parser = require('./parser')
 module.exports = {
 
 	lookupFile: function(file) {
-		return parser(file).then((result) => {
-			let functions = []
-			if (result.module.annotations.hasOwnProperty('injectable')) {
-				functions.push(result.module)
-			}
-			for (let name in result.functions) {
-				functions.push(result.functions[name])
-			}
-			return functions.filter((funct) => {
+		return parser.parse(file).then((result) => {
+			return result.filter((funct) => {
 				return funct.annotations.hasOwnProperty('injectable')
 			}).map((funct) => {
 				return this.createFunctDefinition(funct)
