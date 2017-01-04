@@ -6,32 +6,24 @@ module.exports.createSkipped = function () {
 	return 'skipper'
 }
 
-/**
- * @injectable(joda)
- */
+// @injectable(joda)
 module.exports.createJediOne = function () {
 	return 'joda'
 }
 
-/**
- * @injectable(windu)
- */
+// @injectable(windu)
 module.exports.createJediTwo = function () {
 	return 'windu'
 }
 
-/**
- * @injectable()
- */
+// @injectable()
 module.exports.createWarriors1 = function (jedi1, jedi2) {
 	return [jedi1, jedi2]
 }
 
-/**
- * @injectable(warriors2 joda,windu)
- */
-module.exports.createWarriors2 = function (joda, windu) {
-	return [joda, windu]
+// @injectable(warriors2 joda,windu)
+module.exports.createWarriors2 = function (jedi1, jedi2) {
+	return [jedi1, jedi2]
 }
 
 /**
