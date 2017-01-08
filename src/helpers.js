@@ -19,23 +19,20 @@ module.exports = {
 		})
 	},
 
-	detectCycle: function (modules, path) {
+	checkDependencies: function (modules, path) {
 		let module = modules.get(path[path.length-1])
 		for (let i = 0; i < module.dependencies.length; i++) {
 			let dep = module.dependencies[i]
-			if (path.indexOf(dep) >= 0) {
-				path.push(dep)
-				return true
-			} else {
-				path.push(dep)
-				if (this.detectCycle(modules, path)) {
-					return true
-				} else {
-					path.pop()
-				}
+			if (!modules.has(dep)) {
+				throw new Error(`Module ${module.name} has missing dependency ${dep}`)
 			}
+			if (path.indexOf(dep) >= 0) {
+				throw new Error(`Module ${module.name} has cyclic dependency on ${dep}`)
+			}
+			path.push(dep)
+			this.checkDependencies(modules, path)
+			path.pop()
 		}
-		return false
 	}
 
 }

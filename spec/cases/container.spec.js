@@ -139,7 +139,7 @@ describe('Container', function() {
 				expect(module).toBe(undefined)
 				return done()
 			}).catch((err) => {
-				expect(err.message).toBe('Module module1 missing dependencies: moduleMissing')
+				expect(err.message.indexOf('Module module1 has missing dependency moduleMissing') >= 0).toBe(true)
 				return done()
 			})
 		})
@@ -155,7 +155,7 @@ describe('Container', function() {
 				expect(module).toBe(undefined)
 				return done()
 			}).catch((err) => {
-				expect(err.message).toBe('Module module1 has cycle dependencies: module1 -> module2 -> module1')
+				expect(err.message.indexOf('Module module2 has cyclic dependency on module1') >= 0).toBe(true)
 				return done()
 			})
 		})

@@ -67,16 +67,11 @@ class Container {
 			return module.resolvingPromise;
 		}
 
-		let missingModules = module.dependencies.filter((dep) => {
-			return !this.modules.has(dep)
-		})
-		if (missingModules.length > 0) {
-			return Promise.reject(new Error(`Module ${name} missing dependencies: ${missingModules.join(',')}`))
-		}
-
 		let path = [module.name]
-		if (helpers.detectCycle(this.modules, path)) {
-			return Promise.reject(new Error(`Module ${name} has cycle dependencies: ${path.join(' -> ')}`))
+		try {
+			helpers.checkDependencies(this.modules, path)
+		} catch (err) {
+			return Promise.reject(new Error(`Resolving module ${path.join(' -> ')} cause error ${err}`))
 		}
 
 		this.resolving.add(name)
