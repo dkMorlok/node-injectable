@@ -46,7 +46,12 @@ module.exports = {
 				if (functContent.indexOf('construct') > 0) {
 					annotations = this.parseClassAnnotations(functContent)
 				} else {
-					annotations = this.parseFunctionAnnotations(fileContent, name)
+					let matches
+					if (matches = functContent.match(/function\s*(\S+)?\s*\(/)) {
+						annotations = this.parseFunctionAnnotations(fileContent, name, matches[1])
+					} else {
+						annotations = this.parseFunctionAnnotations(fileContent, name)
+					}
 				}
 				if (annotations) {
 					result.push({
@@ -62,14 +67,22 @@ module.exports = {
 	},
 
 	parseModuleAnnotations: function(fileContent) {
-		let query = ['module\\.exports\\s*=\\s*(:?function\\s*\\([\\S\\s]*?\\))?\\s*{']
+		let query = [
+			'module\\.exports\\s*=\\s*(:?function\\s*\\([\\S\\s]*?\\))?\\s*{'
+		]
 		let regex = new RegExp('((\\/\\/.*)|(\\/\\*(?:[\\s\\S](?!\\*\\/))*?\\s*\\*\\/)|\\s)*(' + query.join('|') + ')')
 		let matches = regex.exec(fileContent)
 		return matches ? this.parseCommentAnnotations(matches[0]) : null
 	},
 
-	parseFunctionAnnotations: function(fileContent, name) {
-		let query = [name + '\\s*:\\s*function\\s*\\(', '(module\\.)?exports\\.' + name + '\\s*=\\s*']
+	parseFunctionAnnotations: function(fileContent, name, functName = null) {
+		let query = [
+			name + '\\s*:\\s*function\\s*\\(',
+			'(module\\.)?exports\\.' + name + '\\s*=\\s*'
+		]
+		if (functName) {
+			query.push('\\s*function\\s*' + functName + '\\s*\\(')
+		}
 		let regex = new RegExp('((\\/\\/.*)|(\\/\\*(?:[\\s\\S](?!\\*\\/))*?\\s*\\*\\/)|\\s)*(' + query.join('|') + ')')
 		let matches = regex.exec(fileContent)
 		return matches ? this.parseCommentAnnotations(matches[0]) : null

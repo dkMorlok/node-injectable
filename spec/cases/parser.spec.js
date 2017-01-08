@@ -62,6 +62,18 @@ module.exports.createFoo = function() {
 }
 `
 
+const functionsContentCustomName = `
+/**
+ * @injectable(foo)
+ */
+function default_1() {
+    let router = {name:"test"}
+    return router;
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = default_1;
+`
+
 describe('Parser', () => {
 
 	describe('#parseModuleAnnotations', () => {
@@ -95,6 +107,11 @@ describe('Parser', () => {
 			let parsed = parser.parseFunctionAnnotations(functionsContentNoAnnotations, 'createFoo')
 			expect(parsed).toBe(null)
 		})
+		it('should parse function annotations when function has custom name', () => {
+			let parsed = parser.parseFunctionAnnotations(functionsContentCustomName, 'default', 'default_1')
+			expect(parsed.hasOwnProperty('injectable')).toBe(true)
+			expect(parsed.injectable.indexOf('foo')).toBe(0)
+		})
 	})
 
 	describe('#parseClassAnnotations', () => {
@@ -114,8 +131,18 @@ describe('Parser', () => {
 	})
 
 	describe('#parse', () => {
-		it('should parse file annotations', (done) => {
+		it('should parse module annotations', (done) => {
 			parser.parse(__dirname + '/../files/module.js').then((parsed) => {
+				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
+				return done()
+			}).catch((err) => {
+				expect(err).toBe(undefined)
+				return done()
+			})
+		})
+		it('should parse typescript annotations', (done) => {
+			parser.parse(__dirname + '/../files/typescript.js').then((parsed) => {
 				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
 				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
 				return done()
