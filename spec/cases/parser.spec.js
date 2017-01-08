@@ -1,6 +1,6 @@
 const parser = require('../../src/parser')
 
-const classContent = `
+const contentClass = `
 class MyLogger {
 	/**
 	 * @injectable(logger)
@@ -13,7 +13,7 @@ class MyLogger {
 	}
 }`
 
-const classContentNoAnnotations = `
+const contentClassNoAnnotations = `
 class MyLogger {
 	constructor() {
 		this.prefix = "app:"
@@ -23,7 +23,7 @@ class MyLogger {
 	}
 }`
 
-const moduleContent = `
+const contentModule = `
 /**
  * @injectable(foo)
  */
@@ -31,7 +31,7 @@ module.exports = function() {
 }
 `
 
-const moduleContentNotExporting = `
+const contentModuleNotExporting = `
 /**
  * @injectable(foo)
  */
@@ -39,7 +39,7 @@ function() {
 }
 `
 
-const functionsContent = `
+const contentFunctions = `
 /**
  * @injectable(foo)
  */
@@ -47,7 +47,7 @@ module.exports.createFoo = function() {
 }
 `
 
-const functionsContentInside = `
+const contentFunctionsInside = `
 module.exports = {
 	/**
 	 * @injectable(foo)
@@ -57,12 +57,12 @@ module.exports = {
 }
 `
 
-const functionsContentNoAnnotations = `
+const contentFunctionsNoAnnotations = `
 module.exports.createFoo = function() {
 }
 `
 
-const functionsContentCustomName = `
+const contentFunctionsCustomName = `
 /**
  * @injectable(foo)
  */
@@ -78,37 +78,37 @@ describe('Parser', () => {
 
 	describe('#parseModuleAnnotations', () => {
 		it('should parse module annotations', () => {
-			let parsed = parser.parseModuleAnnotations(moduleContent)
+			let parsed = parser.parseModuleAnnotations(contentModule)
 			expect(parsed.hasOwnProperty('injectable')).toBe(true)
 			expect(parsed.injectable.indexOf('foo')).toBe(0)
 		})
 		it('should not parse when module exporting nothing', () => {
-			let parsed = parser.parseModuleAnnotations(moduleContentNotExporting)
+			let parsed = parser.parseModuleAnnotations(contentModuleNotExporting)
 			expect(parsed).toBe(null)
 		})
 	})
 
 	describe('#parseFunctionAnnotations', () => {
 		it('should parse function annotations', () => {
-			let parsed = parser.parseFunctionAnnotations(functionsContent, 'createFoo')
+			let parsed = parser.parseFunctionAnnotations(contentFunctions, 'createFoo')
 			expect(parsed.hasOwnProperty('injectable')).toBe(true)
 			expect(parsed.injectable.indexOf('foo')).toBe(0)
 		})
 		it('should not parse when method is missing', () => {
-			let parsed = parser.parseFunctionAnnotations(functionsContent, 'createBar')
+			let parsed = parser.parseFunctionAnnotations(contentFunctions, 'createBar')
 			expect(parsed).toBe(null)
 		})
 		it('should parse function annotations when function in module export', () => {
-			let parsed = parser.parseFunctionAnnotations(functionsContentInside, 'createFoo')
+			let parsed = parser.parseFunctionAnnotations(contentFunctionsInside, 'createFoo')
 			expect(parsed.hasOwnProperty('injectable')).toBe(true)
 			expect(parsed.injectable.indexOf('foo')).toBe(0)
 		})
 		it('should not parse when method has no annotations', () => {
-			let parsed = parser.parseFunctionAnnotations(functionsContentNoAnnotations, 'createFoo')
+			let parsed = parser.parseFunctionAnnotations(contentFunctionsNoAnnotations, 'createFoo')
 			expect(parsed).toBe(null)
 		})
 		it('should parse function annotations when function has custom name', () => {
-			let parsed = parser.parseFunctionAnnotations(functionsContentCustomName, 'default', 'default_1')
+			let parsed = parser.parseFunctionAnnotations(contentFunctionsCustomName, 'default', 'default_1')
 			expect(parsed.hasOwnProperty('injectable')).toBe(true)
 			expect(parsed.injectable.indexOf('foo')).toBe(0)
 		})
@@ -116,12 +116,12 @@ describe('Parser', () => {
 
 	describe('#parseClassAnnotations', () => {
 		it('should parse class annotations', () => {
-			let parsed = parser.parseClassAnnotations(classContent)
+			let parsed = parser.parseClassAnnotations(contentClass)
 			expect(parsed.hasOwnProperty('injectable')).toBe(true)
 			expect(parsed.injectable.indexOf('logger')).toBe(0)
 		})
 		it('should not parse when class dont have annotations', () => {
-			let parsed = parser.parseClassAnnotations(classContentNoAnnotations)
+			let parsed = parser.parseClassAnnotations(contentClassNoAnnotations)
 			expect(parsed).toBe(null)
 		})
 		it('should not parse when class not provided', () => {
@@ -143,8 +143,12 @@ describe('Parser', () => {
 		})
 		it('should parse typescript annotations', (done) => {
 			parser.parse(__dirname + '/../files/typescript.js').then((parsed) => {
+				// exported (default) function
 				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
 				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
+				// exported class
+				expect(parsed[1].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[1].annotations.injectable.indexOf('bar')).toBe(0)
 				return done()
 			}).catch((err) => {
 				expect(err).toBe(undefined)

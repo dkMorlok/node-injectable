@@ -9,3 +9,11 @@ function default_1() {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = default_1;
+class Bar {
+	/**
+	 * @injectable(bar)
+	 */
+	constructor() {
+	}
+}
+exports.Bar = Bar;
