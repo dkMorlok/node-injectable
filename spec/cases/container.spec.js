@@ -56,7 +56,7 @@ describe('Container', function() {
 			})
 		})
 
-		it('should throw error when already registered', () => {
+		it('should throw error when module already registered', () => {
 			container.register('module1', function () {
 				return 'foo'
 			})
@@ -92,7 +92,7 @@ describe('Container', function() {
 			})
 		})
 
-		it('should resolve module with dependencies', (done) => {
+		it('should resolve functions with dependencies', (done) => {
 			container.register('module1', function () {
 				return 'foo'
 			})
@@ -101,6 +101,29 @@ describe('Container', function() {
 			})
 			container.resolve('module2').then((module) => {
 				expect(module).toBe('foobar')
+				return done()
+			}).catch((err) => {
+				expect(err).toBe(undefined)
+				return done()
+			})
+		})
+
+		it('should resolve classes with dependencies', (done) => {
+			const FooClass = class {
+				constructor() {
+					this.name = 'foo'
+				}
+			}
+			const BarClass = class {
+				constructor(foo) {
+					this.name = foo.name + 'bar'
+				}
+			}
+			container.register('foo', FooClass)
+			container.register('bar', BarClass)
+			container.resolve('bar').then((object) => {
+				expect(object instanceof BarClass).toBe(true)
+				expect(object.name).toBe('foobar')
 				return done()
 			}).catch((err) => {
 				expect(err).toBe(undefined)
@@ -121,7 +144,7 @@ describe('Container', function() {
 			})
 		})
 
-		it('should throw error when dependency has cycle on other module', (done) => {
+		it('should throw error when module has cycle dependency', (done) => {
 			container.register('module1', function (module2) {
 				return 'foo'
 			})
@@ -158,7 +181,7 @@ describe('Container', function() {
 			})
 		})
 
-		it('should inject dependencies by params', (done) => {
+		it('should inject function dependencies by params', (done) => {
 			container.inject(function (foo, bar) {
 				expect(foo).toBe('foo')
 				expect(bar).toBe('bar')
@@ -169,12 +192,63 @@ describe('Container', function() {
 			})
 		})
 
-		it('should inject dependencies by names', (done) => {
+		it('should inject function dependencies by names', (done) => {
 			container.inject(['foo', 'bar', function (dep1, dep2) {
 				expect(dep1).toBe('foo')
 				expect(dep2).toBe('bar')
 				return done()
 			}]).catch((err) => {
+				expect(err).toBe(undefined)
+				return done()
+			})
+		})
+
+		it('should inject class dependencies by params', (done) => {
+			const TestClass = class {
+				constructor(foo, bar) {
+					this.foo = foo
+					this.bar = bar
+				}
+			}
+			container.inject(TestClass).then((instance) => {
+				expect(instance instanceof TestClass).toBe(true)
+				expect(instance.foo).toBe('foo')
+				expect(instance.bar).toBe('bar')
+				return done()
+			}).catch((err) => {
+				expect(err).toBe(undefined)
+				return done()
+			})
+		})
+
+		it('should inject class dependencies by names', (done) => {
+			const TestClass = class {
+				constructor(dep1, dep2) {
+					this.foo = dep1
+					this.bar = dep2
+				}
+			}
+			container.inject(['foo', 'bar', TestClass]).then((instance) => {
+				expect(instance instanceof TestClass).toBe(true)
+				expect(instance.foo).toBe('foo')
+				expect(instance.bar).toBe('bar')
+				return done()
+			}).catch((err) => {
+				expect(err).toBe(undefined)
+				return done()
+			})
+		})
+
+		it('should inject class without dependencies', (done) => {
+			const TestClass = class {
+				log(message) {
+					return message
+				}
+			}
+			container.inject(TestClass).then((instance) => {
+				expect(instance instanceof TestClass).toBe(true)
+				return done()
+			}).catch((err) => {
 				expect(err).toBe(undefined)
 				return done()
 			})

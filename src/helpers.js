@@ -1,4 +1,4 @@
-const FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
+const FN_ARGS = /(function|constructor)\s*[^\(]*\(\s*([^\)]*)\)/m;
 const FN_ARG_SPLIT = /,/;
 const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 
@@ -14,7 +14,7 @@ module.exports = {
 		srcFn = srcFn.replace(STRIP_COMMENTS, '')
 
 		let matches = srcFn.match(FN_ARGS)
-		return matches[1].split(FN_ARG_SPLIT).map((arg) => {
+		return matches[2].split(FN_ARG_SPLIT).map((arg) => {
 			return arg.trim()
 		})
 	},

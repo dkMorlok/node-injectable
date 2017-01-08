@@ -35,13 +35,20 @@ class Container {
 		let factory, dependencies
 		if (typeof definition == 'function') {
 			factory = definition
-			dependencies = helpers.extractDependencies(definition)
+			dependencies = helpers.extractDependencies(factory)
 		} else {
 			factory = definition[definition.length - 1]
 			dependencies = definition.slice(0, -1)
 		}
 		if (typeof factory != 'function') {
 			throw new Error(`Module ${name} factory function is not function`)
+		}
+
+		if (/^\s*class\s+/.test(factory.toString())) {
+			const _factory = factory
+			factory = function(...args) {
+				return new _factory(...args)
+			}
 		}
 
 		this.modules.set(name, new Module(name, factory, dependencies))
@@ -91,14 +98,22 @@ class Container {
 		let factory, dependencies
 		if (typeof definition == 'function') {
 			factory = definition
-			dependencies = helpers.extractDependencies(definition)
+			dependencies = helpers.extractDependencies(factory)
 		} else {
 			factory = definition[definition.length - 1]
 			dependencies = definition.slice(0, -1)
 		}
 		if (typeof factory != 'function') {
-			throw new Error(`Module ${name} factory function is not function`)
+			throw new Error(`Factory function is not function`)
 		}
+
+		if (/^\s*class\s+/.test(factory.toString())) {
+			const _factory = factory
+			factory = function(...args) {
+				return new _factory(...args)
+			}
+		}
+
 		return Promise.all(dependencies).map((dep) => {
 			return this.resolve(dep)
 		}).then((deps) => {
