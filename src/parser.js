@@ -25,7 +25,7 @@ module.exports = {
 			let annotations = null
 			let functContent = moduleToLoad.toString()
 			if (functContent.indexOf('construct') > 0) {
-				annotations = this.parseClassAnnotations(functContent)
+				annotations = this.parseClassAnnotations(fileContent, functContent)
 			} else {
 				annotations = this.parseModuleAnnotations(fileContent)
 			}
@@ -44,7 +44,7 @@ module.exports = {
 				let annotations = null
 				let functContent = moduleToLoad[name].toString()
 				if (functContent.indexOf('construct') > 0) {
-					annotations = this.parseClassAnnotations(functContent)
+					annotations = this.parseClassAnnotations(fileContent, functContent)
 				} else {
 					let matches = functContent.match(/function\s*(\S+)\s*\(/)
 					annotations = this.parseFunctionAnnotations(fileContent, name, matches ? matches[1] : null)
@@ -84,9 +84,13 @@ module.exports = {
 		return matches ? this.parseCommentAnnotations(matches[0]) : null
 	},
 
-	parseClassAnnotations: function(classContent) {
+	parseClassAnnotations: function(fileContent, classContent) {
 		let matches = classRegexp.exec(classContent)
-		return matches ? this.parseCommentAnnotations(matches[0]) : null
+		if (matches && fileContent.indexOf(matches[0]) >= 0) {
+			return this.parseCommentAnnotations(matches[0])
+		} else {
+			return null
+		}
 	},
 
 	parseCommentAnnotations: function(comment) {

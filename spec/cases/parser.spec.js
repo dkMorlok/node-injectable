@@ -116,12 +116,14 @@ describe('Parser', () => {
 
 	describe('#parseClassAnnotations', () => {
 		it('should parse class annotations', () => {
-			let parsed = parser.parseClassAnnotations(contentClass)
+			// note: file_content, class_content (in this case same)
+			let parsed = parser.parseClassAnnotations(contentClass, contentClass)
 			expect(parsed.hasOwnProperty('injectable')).toBe(true)
 			expect(parsed.injectable.indexOf('logger')).toBe(0)
 		})
 		it('should not parse when class dont have annotations', () => {
-			let parsed = parser.parseClassAnnotations(contentClassNoAnnotations)
+			// note: file_content, class_content (in this case same)
+			let parsed = parser.parseClassAnnotations(contentClassNoAnnotations, contentClassNoAnnotations)
 			expect(parsed).toBe(null)
 		})
 		it('should not parse when class not provided', () => {
@@ -149,6 +151,15 @@ describe('Parser', () => {
 				// exported class
 				expect(parsed[1].annotations.hasOwnProperty('injectable')).toBe(true)
 				expect(parsed[1].annotations.injectable.indexOf('bar')).toBe(0)
+				return done()
+			}).catch((err) => {
+				expect(err).toBe(undefined)
+				return done()
+			})
+		})
+		it('should ignore class parsing when is imported from external file', (done) => {
+			parser.parse(__dirname + '/../files/class-imported.js').then((parsed) => {
+				expect(parsed.length).toBe(0)
 				return done()
 			}).catch((err) => {
 				expect(err).toBe(undefined)
