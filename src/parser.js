@@ -46,7 +46,7 @@ module.exports = {
 				if (functContent.indexOf('construct') > 0) {
 					annotations = this.parseClassAnnotations(fileContent, functContent)
 				} else {
-					let matches = functContent.match(/function\s*(\S+)\s*\(/)
+					let matches = functContent.match(/function\s*([^(]+)?\s*\(/)
 					annotations = this.parseFunctionAnnotations(fileContent, name, matches ? matches[1] : null)
 				}
 				if (annotations) {
