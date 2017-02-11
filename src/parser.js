@@ -4,7 +4,7 @@ const path = require('path')
 const caller = require('caller')
 const readFileAsync = Promise.promisify(fs.readFile)
 
-const classRegexp = /((\/\/.*)|(\/\*(?:[\s\S](?!\*\/))*?\s*\*\/)|\s)*\s*(constructor\s*\()/
+const classRegexp = /((\/\/.*)|(\/\*(?:[\s\S](?!\*\/))*?\s*\*\/))*\s*(constructor\s*\()/
 const annotationRegexp = /@([a-zA-Z_][a-zA-Z0-9]*)\((.*)\)/g
 
 module.exports = {
@@ -86,8 +86,8 @@ module.exports = {
 
 	parseClassAnnotations: function(fileContent, classContent) {
 		let matches = classRegexp.exec(classContent)
-		if (matches && fileContent.indexOf(matches[0]) >= 0) {
-			return this.parseCommentAnnotations(matches[0])
+		if (matches && fileContent.indexOf(matches[1]) >= 0) {
+			return this.parseCommentAnnotations(matches[1])
 		} else {
 			return null
 		}
