@@ -4,8 +4,8 @@
   "description": "Dependency injection for nodejs on steroids",
   "main": "index.js",
   "scripts": {
-    "jasmine": "jasmine",
-    "test": "nyc --reporter=text --reporter=lcov jasmine",
+    "test": "jasmine",
+    "nyc": "nyc --reporter=text --reporter=lcov npm test",
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
