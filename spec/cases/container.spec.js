@@ -9,13 +9,11 @@ describe('Container', function() {
 	})
 
 	describe('#add', () => {
-		it('should add module', (done) => {
+		it('should add module', async () => {
 			container.add('module1', 'foo')
 			expect(container.has('module1')).toBe(true)
-			container.resolve('module1').then((module) => {
-				expect(module).toBe('foo')
-				return done()
-			})
+			let resolved = await container.resolve('module1')
+			expect(resolved).toBe('foo')
 		})
 
 		it('should add module when was removed', () => {
@@ -43,17 +41,12 @@ describe('Container', function() {
 	})
 
 	describe('#register', () => {
-		it('should register module', (done) => {
+		it('should register module', async () => {
 			container.register('module1', function () {
 				return 'foo'
 			})
-			container.resolve('module1').then((module) => {
-				expect(module).toBe('foo')
-				return done()
-			}).catch((err) => {
-				expect(err).toBe(undefined)
-				return done()
-			})
+			let resolved = await container.resolve('module1')
+			expect(resolved).toBe('foo')
 		})
 
 		it('should throw error when module already registered', () => {
@@ -75,40 +68,28 @@ describe('Container', function() {
 	})
 
 	describe('#resolve', () => {
-		it('should resolve same object', (done) => {
+		it('should resolve same object', async () => {
 			let object = ['foo']
 			container.register('module1', function () {
 				return object
 			})
-			container.resolve('module1').then((moduleA) => {
-				return container.resolve('module1')
-				.then((moduleB) => {
-					expect(moduleA).toBe(moduleB)
-					return done()
-				})
-			}).catch((err) => {
-				expect(err).toBe(undefined)
-				return done()
-			})
+			let moduleA = await container.resolve('module1')
+			let moduleB = await container.resolve('module1')
+			expect(moduleA).toBe(moduleB)
 		})
 
-		it('should resolve functions with dependencies', (done) => {
+		it('should resolve functions with dependencies', async () => {
 			container.register('module1', function () {
 				return 'foo'
 			})
 			container.register('module2', function (module1) {
 				return module1 + 'bar'
 			})
-			container.resolve('module2').then((module) => {
-				expect(module).toBe('foobar')
-				return done()
-			}).catch((err) => {
-				expect(err).toBe(undefined)
-				return done()
-			})
+			let resolved = await container.resolve('module2')
+			expect(resolved).toBe('foobar')
 		})
 
-		it('should resolve classes with dependencies', (done) => {
+		it('should resolve classes with dependencies', async () => {
 			const FooClass = class {
 				constructor() {
 					this.name = 'foo'
@@ -121,22 +102,17 @@ describe('Container', function() {
 			}
 			container.register('foo', FooClass)
 			container.register('bar', BarClass)
-			container.resolve('bar').then((object) => {
-				expect(object instanceof BarClass).toBe(true)
-				expect(object.name).toBe('foobar')
-				return done()
-			}).catch((err) => {
-				expect(err).toBe(undefined)
-				return done()
-			})
+			let object = await container.resolve('bar')
+			expect(object instanceof BarClass).toBe(true)
+			expect(object.name).toBe('foobar')
 		})
 
 		it('should throw error when dependency missing', (done) => {
 			container.register('module1', function (moduleMissing) {
 				return 'foo'
 			})
-			container.resolve('module1').then((module) => {
-				expect(module).toBe(undefined)
+			container.resolve('module1').then((resolved) => {
+				expect(resolved).toBe(undefined)
 				return done()
 			}).catch((err) => {
 				expect(err.message.indexOf('Module module1 has missing dependency moduleMissing') >= 0).toBe(true)
@@ -151,8 +127,8 @@ describe('Container', function() {
 			container.register('module2', function (module1) {
 				return 'bar'
 			})
-			container.resolve('module1').then((module) => {
-				expect(module).toBe(undefined)
+			container.resolve('module1').then((resolved) => {
+				expect(resolved).toBe(undefined)
 				return done()
 			}).catch((err) => {
 				expect(err.message.indexOf('Module module2 has cyclic dependency on module1') >= 0).toBe(true)
@@ -161,8 +137,8 @@ describe('Container', function() {
 		})
 
 		it('should throw error when module not exists', (done) => {
-			container.resolve('module1').then((module) => {
-				expect(module).toBe(undefined)
+			container.resolve('module1').then((resolved) => {
+				expect(resolved).toBe(undefined)
 				return done()
 			}).catch((err) => {
 				expect(err.message).toBe('Missing module module1')
@@ -203,55 +179,40 @@ describe('Container', function() {
 			})
 		})
 
-		it('should inject class dependencies by params', (done) => {
+		it('should inject class dependencies by params', async () => {
 			const TestClass = class {
 				constructor(foo, bar) {
 					this.foo = foo
 					this.bar = bar
 				}
 			}
-			container.inject(TestClass).then((instance) => {
-				expect(instance instanceof TestClass).toBe(true)
-				expect(instance.foo).toBe('foo')
-				expect(instance.bar).toBe('bar')
-				return done()
-			}).catch((err) => {
-				expect(err).toBe(undefined)
-				return done()
-			})
+			let instance = await container.inject(TestClass)
+			expect(instance instanceof TestClass).toBe(true)
+			expect(instance.foo).toBe('foo')
+			expect(instance.bar).toBe('bar')
 		})
 
-		it('should inject class dependencies by names', (done) => {
+		it('should inject class dependencies by names', async () => {
 			const TestClass = class {
 				constructor(dep1, dep2) {
 					this.foo = dep1
 					this.bar = dep2
 				}
 			}
-			container.inject(['foo', 'bar', TestClass]).then((instance) => {
-				expect(instance instanceof TestClass).toBe(true)
-				expect(instance.foo).toBe('foo')
-				expect(instance.bar).toBe('bar')
-				return done()
-			}).catch((err) => {
-				expect(err).toBe(undefined)
-				return done()
-			})
+			let instance = await container.inject(['foo', 'bar', TestClass])
+			expect(instance instanceof TestClass).toBe(true)
+			expect(instance.foo).toBe('foo')
+			expect(instance.bar).toBe('bar')
 		})
 
-		it('should inject class without dependencies', (done) => {
+		it('should inject class without dependencies', async () => {
 			const TestClass = class {
 				log(message) {
 					return message
 				}
 			}
-			container.inject(TestClass).then((instance) => {
-				expect(instance instanceof TestClass).toBe(true)
-				return done()
-			}).catch((err) => {
-				expect(err).toBe(undefined)
-				return done()
-			})
+			let instance = await container.inject(TestClass)
+			expect(instance instanceof TestClass).toBe(true)
 		})
 
 		it('should throw error when missing factory function', () => {
@@ -262,30 +223,20 @@ describe('Container', function() {
 	})
 
 	describe('#lookup', () => {
-		it('should load modules from file', (done) => {
-			container.lookup(__dirname + '/../files/module.js').then((result) => {
-				expect(result.length).toBe(1)
-				expect(result[0].file).toBe(path.normalize(__dirname + '/../files/module.js'))
-				expect(Array.isArray(result[0].modules)).toBe(true)
-				return done()
-			}).catch((err) => {
-				expect(err).toBe(undefined)
-				return done()
-			})
+		it('should load modules from file', async () => {
+			let result = await container.lookup(__dirname + '/../files/lookup/module.js')
+			expect(result.length).toBe(1)
+			expect(result[0].file).toBe(path.normalize(__dirname + '/../files/lookup/module.js'))
+			expect(Array.isArray(result[0].modules)).toBe(true)
 		})
 
-		it('should load modules from multiple file', (done) => {
-			container.lookup([__dirname + '/../files/module.js', __dirname + '/../files/functions.js']).then((result) => {
-				expect(result.length).toBe(2)
-				expect(result[0].file).toBe(path.normalize(__dirname + '/../files/module.js'))
-				expect(Array.isArray(result[0].modules)).toBe(true)
-				expect(result[1].file).toBe(path.normalize(__dirname + '/../files/functions.js'))
-				expect(Array.isArray(result[1].modules)).toBe(true)
-				return done()
-			}).catch((err) => {
-				expect(err).toBe(undefined)
-				return done()
-			})
+		it('should load modules from multiple file', async () => {
+			let result = await container.lookup([__dirname + '/../files/lookup/module.js', __dirname + '/../files/lookup/functions.js'])
+			expect(result.length).toBe(2)
+			expect(result[0].file).toBe(path.normalize(__dirname + '/../files/lookup/module.js'))
+			expect(Array.isArray(result[0].modules)).toBe(true)
+			expect(result[1].file).toBe(path.normalize(__dirname + '/../files/lookup/functions.js'))
+			expect(Array.isArray(result[1].modules)).toBe(true)
 		})
 	})
 })

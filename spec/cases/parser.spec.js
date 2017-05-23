@@ -1,171 +1,132 @@
 const parser = require('../../src/parser')
 
-const contentClass = `
-class MyLogger {
-	/**
-	 * @injectable(logger)
-	 */
-	constructor() {
-		this.prefix = "app:"
-	}
-	log(message) {
-		console.log(this.prefix + message)
-	}
-}`
-
-const contentClassNoAnnotations = `
-class MyLogger {
-	constructor() {
-		this.prefix = "app:"
-	}
-	log(message) {
-		console.log(this.prefix + message)
-	}
-}`
-
-const contentModule = `
-/**
- * @injectable(foo)
- */
-module.exports = function() {
-}
-`
-
-const contentModuleNotExporting = `
-/**
- * @injectable(foo)
- */
-function() {
-}
-`
-
-const contentFunctions = `
-/**
- * @injectable(foo)
- */
-module.exports.createFoo = function() {
-}
-`
-
-const contentFunctionsInside = `
-module.exports = {
-	/**
-	 * @injectable(foo)
-	 */
-	createFoo: function() {
-	}
-}
-`
-
-const contentFunctionsNoAnnotations = `
-module.exports.createFoo = function() {
-}
-`
-
-const contentFunctionsCustomName = `
-/**
- * @injectable(foo)
- */
-function default_1() {
-    let router = {name:"test"}
-    return router;
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = default_1;
-`
-
 describe('Parser', () => {
 
-	describe('#parseModuleAnnotations', () => {
-		it('should parse module annotations', () => {
-			let parsed = parser.parseModuleAnnotations(contentModule)
-			expect(parsed.hasOwnProperty('injectable')).toBe(true)
-			expect(parsed.injectable.indexOf('foo')).toBe(0)
-		})
-		it('should not parse when module exporting nothing', () => {
-			let parsed = parser.parseModuleAnnotations(contentModuleNotExporting)
-			expect(parsed).toBe(null)
-		})
-	})
+	describe('#parse module.export', () => {
 
-	describe('#parseFunctionAnnotations', () => {
-		it('should parse function annotations', () => {
-			let parsed = parser.parseFunctionAnnotations(contentFunctions, 'createFoo')
-			expect(parsed.hasOwnProperty('injectable')).toBe(true)
-			expect(parsed.injectable.indexOf('foo')).toBe(0)
-		})
-		it('should not parse when method is missing', () => {
-			let parsed = parser.parseFunctionAnnotations(contentFunctions, 'createBar')
-			expect(parsed).toBe(null)
-		})
-		it('should parse function annotations when function in module export', () => {
-			let parsed = parser.parseFunctionAnnotations(contentFunctionsInside, 'createFoo')
-			expect(parsed.hasOwnProperty('injectable')).toBe(true)
-			expect(parsed.injectable.indexOf('foo')).toBe(0)
-		})
-		it('should not parse when method has no annotations', () => {
-			let parsed = parser.parseFunctionAnnotations(contentFunctionsNoAnnotations, 'createFoo')
-			expect(parsed).toBe(null)
-		})
-		it('should parse function annotations when function has custom name', () => {
-			let parsed = parser.parseFunctionAnnotations(contentFunctionsCustomName, 'default', 'default_1')
-			expect(parsed.hasOwnProperty('injectable')).toBe(true)
-			expect(parsed.injectable.indexOf('foo')).toBe(0)
-		})
-	})
-
-	describe('#parseClassAnnotations', () => {
-		it('should parse class annotations', () => {
-			// note: file_content, class_content (in this case same)
-			let parsed = parser.parseClassAnnotations(contentClass, contentClass)
-			expect(parsed.hasOwnProperty('injectable')).toBe(true)
-			expect(parsed.injectable.indexOf('logger')).toBe(0)
-		})
-		it('should not parse when class dont have annotations', () => {
-			// note: file_content, class_content (in this case same)
-			let parsed = parser.parseClassAnnotations(contentClassNoAnnotations, contentClassNoAnnotations)
-			expect(parsed).toBe(null)
-		})
-		it('should not parse when class not provided', () => {
-			let parsed = parser.parseClassAnnotations('')
-			expect(parsed).toBe(null)
-		})
-	})
-
-	describe('#parse', () => {
-		it('should parse module annotations', (done) => {
-			parser.parse(__dirname + '/../files/module.js').then((parsed) => {
+		describe('when exported simple', () => {
+			it('should parse function annotations', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/module/function-simple.js')
+				expect(parsed.length).toBe(1)
 				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
 				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
-				return done()
-			}).catch((err) => {
-				expect(err).toBe(undefined)
-				return done()
+			})
+
+			it('should parse class annotations', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/module/class-simple.js')
+				expect(parsed.length).toBe(1)
+				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
+			})
+
+			it('should not parse if exported without annotations', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/module/function-simple-ignore.js')
+				expect(parsed.length).toBe(0)
 			})
 		})
-		it('should parse typescript annotations', (done) => {
-			parser.parse(__dirname + '/../files/typescript.js').then((parsed) => {
-				// exported (default) function
+
+		describe('when exported functions', () => {
+			it('should parse if exported as property', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/module/function-property.js')
+				expect(parsed.length).toBe(3)
+				// anonymous function
 				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
 				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
-				// exported class
+				// named function
 				expect(parsed[1].annotations.hasOwnProperty('injectable')).toBe(true)
 				expect(parsed[1].annotations.injectable.indexOf('bar')).toBe(0)
-				return done()
-			}).catch((err) => {
-				expect(err).toBe(undefined)
-				return done()
+				// default function
+				expect(parsed[2].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[2].annotations.injectable.indexOf('default')).toBe(0)
 			})
-		})
-		it('should ignore class parsing when is imported from external file', (done) => {
-			parser.parse(__dirname + '/../files/class-imported.js').then((parsed) => {
+
+			it('should parse if exported as properties', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/module/function-properties.js')
+				expect(parsed.length).toBe(3)
+				// anonymous function
+				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
+				// named function
+				expect(parsed[1].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[1].annotations.injectable.indexOf('bar')).toBe(0)
+				// default function
+				expect(parsed[2].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[2].annotations.injectable.indexOf('default')).toBe(0)
+			})
+
+			it('should not parse if exported without annotations', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/module/function-ignore.js')
 				expect(parsed.length).toBe(0)
-				return done()
-			}).catch((err) => {
-				expect(err).toBe(undefined)
-				return done()
 			})
 		})
+
+		describe('when exported classes', () => {
+			it('should parse if exported as property', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/module/class-property.js')
+				expect(parsed.length).toBe(2)
+				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
+				expect(parsed[1].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[1].annotations.injectable.indexOf('bar')).toBe(0)
+			})
+
+			it('should not parse imported class', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/module/class-imported.js')
+				expect(parsed.length).toBe(0)
+			})
+
+			it('should not parse if exported without annotations', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/module/class-ignore.js')
+				expect(parsed.length).toBe(0)
+			})
+		})
+
+	})
+
+	describe('#parse exports', () => {
+
+		describe('when exported functions', () => {
+			it('should parse if exported as property', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/exports/function-property.js')
+				expect(parsed.length).toBe(3)
+				// anonymous function
+				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
+				// named function
+				expect(parsed[1].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[1].annotations.injectable.indexOf('bar')).toBe(0)
+				// default function
+				expect(parsed[2].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[2].annotations.injectable.indexOf('default')).toBe(0)
+			})
+
+			it('should not parse if exported without annotations', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/exports/function-ignore.js')
+				expect(parsed.length).toBe(0)
+			})
+		})
+
+		describe('when exported classes', () => {
+			it('should parse if exported as property', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/exports/class-property.js')
+				expect(parsed.length).toBe(2)
+				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
+				expect(parsed[1].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[1].annotations.injectable.indexOf('bar')).toBe(0)
+			})
+
+			it('should not parse imported class', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/exports/class-imported.js')
+				expect(parsed.length).toBe(0)
+			})
+
+			it('should not parse if exported without annotations', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/exports/class-ignore.js')
+				expect(parsed.length).toBe(0)
+			})
+		})
+
 	})
 
 })

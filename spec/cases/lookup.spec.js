@@ -3,7 +3,7 @@ const lookup = require('../../src/lookup')
 describe('Lookup', function() {
 
 	it('should find module', (done) => {
-		lookup.lookupFile(__dirname + '/../files/module.js').then((parsed) => {
+		lookup.lookupFile(__dirname + '/../files/lookup/module.js').then((parsed) => {
 			expect(parsed.length).toBe(1)
 			expect(parsed[0].name).toBe('foo')
 			expect(typeof parsed[0].factory).toBe('function')
@@ -15,7 +15,7 @@ describe('Lookup', function() {
 	})
 
 	it('should find module functions', (done) => {
-		lookup.lookupFile(__dirname + '/../files/functions.js').then((parsed) => {
+		lookup.lookupFile(__dirname + '/../files/lookup/functions.js').then((parsed) => {
 			expect(parsed.length).toBe(5)
 			// @injectable(joda)  [no inject]
 			expect(parsed[0].name).toBe('joda')
@@ -44,7 +44,7 @@ describe('Lookup', function() {
 	})
 
 	it('should find module class', (done) => {
-		lookup.lookupFile(__dirname + '/../files/class-annotated.js').then((parsed) => {
+		lookup.lookupFile(__dirname + '/../files/lookup/class-annotated.js').then((parsed) => {
 			expect(parsed[0].name).toBe('logger')
 			expect(typeof parsed[0].factory).toBe('function')
 			return done()
@@ -55,7 +55,7 @@ describe('Lookup', function() {
 	})
 
 	it('should dont find module class', (done) => {
-		lookup.lookupFile(__dirname + '/../files/class-normal.js').then((parsed) => {
+		lookup.lookupFile(__dirname + '/../files/lookup/class-normal.js').then((parsed) => {
 			expect(parsed.length).toBe(0)
 			return done()
 		}).catch((err) => {
@@ -65,7 +65,7 @@ describe('Lookup', function() {
 	})
 
 	it('should find module classes', (done) => {
-		lookup.lookupFile(__dirname + '/../files/classes.js').then((parsed) => {
+		lookup.lookupFile(__dirname + '/../files/lookup/classes.js').then((parsed) => {
 			// not annotated injections
 			expect(parsed.length).toBe(2)
 			expect(parsed[0].name).toBe('logger')
