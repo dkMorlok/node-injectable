@@ -7,6 +7,9 @@
 A simple library for dependency injection with support for ES6 generators. For more information about this pattern look at:
 [Dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) and [Inversion of control](http://en.wikipedia.org/wiki/Inversion_of_control).
 
+- supports ES6 classes
+- supports async functions
+- working with Typescript builds
 
 ## Install
 
@@ -22,117 +25,165 @@ Let’s take a look to the recommended usage and APIs of Injectable:
 ### Step1: Declare factories with some dependencies
 
 ```js
-// @injectable(foo)
+/**
+ * @injectable(foo)
+ */
 module.exports.createFoo = function() {
-  return "foo"
+    return "foo"
 }
 
-// @injectable(bar)
+/**
+ * @injectable(bar)
+ */
 module.exports.createBar = function(foo) {
-  return new Promise((resolve, reject) => {
-    resolve(foo + "bar")
-  })
+    return new Promise((resolve, reject) => {
+        resolve(foo + "bar")
+    })
 }
 ```
 
-### Step2: Create a Container a tell him where your dependencies are
+### Step2: Create a Container a tell him where are your dependencies
 
 ```js
 let injectable = require('node-injectable')
 let container = new injectable.Container()
 container.lookup(['src/**/*.js']).then(() => {
-  container.resolve('foo').then((foo) => {
-    console.log(foo) // print "foo"
-  })
-  container.resolve('bar').then((bar) => {
-    console.log(bar) // print "foobar"
-  })
+    container.resolve('foo').then((foo) => {
+        console.log(foo) // print "foo"
+    })
+    container.resolve('bar').then((bar) => {
+        console.log(bar) // print "foobar"
+    })
 })
 ```
 
 
 ## Annotations
 
-There is several ways how to annotate modules even ES6 classes. In general if you want to register module or class
-automatically by annotations you must provide **@injectable(NAME)** in comment. 
+There is several ways how to annotate modules, functions and classes. In general if you want to register module, function or class
+automatically by annotations you must provide **@injectable(NAME)** in comment.
 
-### Exporting functions
+### Resolve by parameter
 
 Your module will be registered as `bar` and have 2 dependencies `dep1` and `dep2` .
 ```js
-// @injectable(bar)
-module.exports = function(dep1, dep2) {}
-```
-
-You can specify better names than `dep1` or `dep2` with extra annotations.
-```js
-// @injectable(bar logger,request)
-module.exports = function(dep1, dep2) {}
-```
-
-In some cases you can have many dependencies, than you can use annotation **@inject(NAME)** for each injected dep. 
-Can’t be combined with previous one. Order of @inject matters when container resolving dependencies.
-```js
 /**
  * @injectable(bar)
- * @inject(logger)
- * @inject(request)
  */
 module.exports = function(dep1, dep2) {}
 ```
 
-Module can export many functions or factories. Injectable lookup for every exported function with `@injectable`.
+### Resolve by name
+
+You can specify better names than `dep1` or `dep2` with extra annotations.
 ```js
-// @injectable(foo)
-module.exports.createFoo() {}
-
-// @injectable(bar)
-module.exports.createBar() {}
-
-// this method is not registered
-module.exports.createSomething() {}
+/**
+ * @injectable(bar)
+ * @param dep1 @inject(logger)
+ * @param dep2 @inject(request)
+ */
+module.exports = function(dep1, dep2) {}
 ```
 
-Also this format of export is supported with `@injectable`
+
+## Annotations examples
+
+### `module.exports` functions
+```js
+/**
+ * @injectable(foo)
+ */
+module.exports.createFoo = function() {
+}
+
+/**
+ * @injectable(bar)
+ */
+module.exports.createBar = async function() {
+}
+```
+
+```js
+/**
+ * @injectable(foo)
+ */
+module.exports = function() {
+}
+```
+
 ```js
 module.exports = {
-  // @injectable(foo)
-  createFoo: function() {},
-  
-  // @injectable(bar)
-  createBar: function() {},
-  
-  // this method is not registered
-  createSomething: function() {}
+    /**
+     * @injectable(foo)
+     */
+    createFoo: function() {
+    },
+
+    /**
+     * @injectable(bar)
+     */
+    createBar: async function() {
+    }
 }
 ```
 
-### Exporting classes
-
-Same way as you exporting methods, you can export a classes with annotations on constructor.
-
+### `module.exports` classes
 ```js
-class MyLogger {
-	// @injectable(logger, writers.logdna)
-	constructor(writer) {
-		this.writer = writer
-	}
+class Foo {
+    /**
+     * @injectable(foo)
+     */
+    constructor() {
+    }
 }
-module.exports = MyLogger 
+module.exports = Foo
 ```
 
-if you prefer multi-line comments:
 ```js
-class MyLogger {
-	/**
-	 * @injectable(logger)
-	 * @inject(writers.logdna) 
-	 */
-	constructor(writer) {
-		this.writer = writer
-	}
+class Foo {
+    /**
+     * @injectable(foo)
+     */
+    constructor() {
+    }
 }
-module.exports = MyLogger 
+module.exports.Foo = Foo
+```
+
+### `exports` functions (ES6)
+
+```js
+/**
+ * @injectable(foo)
+ */
+exports.createFoo = function() {
+}
+
+/**
+ * @injectable(bar)
+ */
+exports.createBar = async function() {
+}
+
+/**
+ * @injectable(default)
+ */
+function default_1() {
+}
+exports.default = default_1
+```
+
+### `exports` classes (ES6)
+
+```js
+class Foo {
+    /**
+     * @injectable(foo)
+     */
+    constructor() {
+    }
+}
+exports.Foo = Foo
 ```
 
 
