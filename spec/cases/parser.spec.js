@@ -12,6 +12,13 @@ describe('Parser', () => {
 				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
 			})
 
+			it('should parse async function annotations', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/module/function-simple-async.js')
+				expect(parsed.length).toBe(1)
+				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
+			})
+
 			it('should parse class annotations', async () => {
 				let parsed = await parser.parse(__dirname + '/../files/parse/module/class-simple.js')
 				expect(parsed.length).toBe(1)
@@ -40,6 +47,20 @@ describe('Parser', () => {
 				expect(parsed[2].annotations.injectable.indexOf('default')).toBe(0)
 			})
 
+			it('should parse if exported as property (async)', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/module/function-property-async.js')
+				expect(parsed.length).toBe(3)
+				// anonymous function
+				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
+				// named function
+				expect(parsed[1].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[1].annotations.injectable.indexOf('bar')).toBe(0)
+				// default function
+				expect(parsed[2].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[2].annotations.injectable.indexOf('default')).toBe(0)
+			})
+
 			it('should parse if exported as properties', async () => {
 				let parsed = await parser.parse(__dirname + '/../files/parse/module/function-properties.js')
 				expect(parsed.length).toBe(3)
@@ -54,8 +75,22 @@ describe('Parser', () => {
 				expect(parsed[2].annotations.injectable.indexOf('default')).toBe(0)
 			})
 
+			it('should parse if exported as properties (async)', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/module/function-properties-async.js')
+				expect(parsed.length).toBe(3)
+				// anonymous function
+				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
+				// named function
+				expect(parsed[1].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[1].annotations.injectable.indexOf('bar')).toBe(0)
+				// default function
+				expect(parsed[2].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[2].annotations.injectable.indexOf('default')).toBe(0)
+			})
+
 			it('should not parse if exported without annotations', async () => {
-				let parsed = await parser.parse(__dirname + '/../files/parse/module/function-ignore.js')
+				let parsed = await parser.parse(__dirname + '/../files/parse/module/function-properties-ignore.js')
 				expect(parsed.length).toBe(0)
 			})
 		})
@@ -100,8 +135,22 @@ describe('Parser', () => {
 				expect(parsed[2].annotations.injectable.indexOf('default')).toBe(0)
 			})
 
+			it('should parse if exported as property (async)', async () => {
+				let parsed = await parser.parse(__dirname + '/../files/parse/exports/function-property-async.js')
+				expect(parsed.length).toBe(3)
+				// anonymous function
+				expect(parsed[0].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[0].annotations.injectable.indexOf('foo')).toBe(0)
+				// named function
+				expect(parsed[1].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[1].annotations.injectable.indexOf('bar')).toBe(0)
+				// default function
+				expect(parsed[2].annotations.hasOwnProperty('injectable')).toBe(true)
+				expect(parsed[2].annotations.injectable.indexOf('default')).toBe(0)
+			})
+
 			it('should not parse if exported without annotations', async () => {
-				let parsed = await parser.parse(__dirname + '/../files/parse/exports/function-ignore.js')
+				let parsed = await parser.parse(__dirname + '/../files/parse/exports/function-property-ignore.js')
 				expect(parsed.length).toBe(0)
 			})
 		})

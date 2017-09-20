@@ -57,7 +57,7 @@ module.exports = {
 
 	parseModuleAnnotations: function(fileContent) {
 		let query = [
-			'module\\.exports\\s*=\\s*(:?function\\s*\\([\\S\\s]*?\\))?\\s*{'
+			'module\\.exports\\s*=\\s*(:?(async\\s+)?function\\s*\\([\\S\\s]*?\\))?\\s*{'
 		]
 
 		let matchesComment = this.createCommentRegexp(query).exec(fileContent)
@@ -80,15 +80,15 @@ module.exports = {
 
 	parseFunctionAnnotations: function(fileContent, property, definition, content) {
 		let query = [
-			property + '\\s*:\\s*function(\\s+\\S+)?\\s*\\(',
+			property + '\\s*:\\s*(async\\s+)?function(\\s+\\S+)?\\s*\\(',
 			'(module\\.)?exports\\.' + property + '\\s*=\\s*',
 		]
 		if (property === 'default') {
-			query.push('\\s*export\\s+(default\\s+)?function\\s*\\(')
+			query.push('\\s*export\\s+(default\\s+)?(async\\s+)?function\\s*\\(')
 		}
 		let matches = content.match(/function\s*([^(]+)?\s*\(/)
 		if (matches && matches[1]) {
-			query.push('\\s*(export\\s+(default\\s+)?)?function\\s+' + matches[1] + '\\s*\\(')
+			query.push('\\s*(export\\s+(default\\s+)?)?(async\\s+)?function\\s+' + matches[1] + '\\s*\\(')
 		}
 
 		let matchesComment = this.createCommentRegexp(query).exec(fileContent)
