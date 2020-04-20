@@ -1,16 +1,16 @@
 language: node_js
 
 node_js:
-  - "7"
+  - "12"
 
 install:
   - npm install
 
 script:
-  - npm run test:nyc
+  - npm run test:cover
 
 after_success:
-  - npm run cover
+  - npm run coveralls
 
 cache:
   directories:

@@ -1,1 +1,0 @@
-require('jasmine-co').install()
