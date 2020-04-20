@@ -1,3 +1,5 @@
+import { Module } from './module'
+
 const FN_ARGS = /(function|constructor)?\s*[^\(]*\(\s*([^\)]*)\)/m;
 const FN_ARG_SPLIT = /,/;
 const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
@@ -21,8 +23,11 @@ export function extractDependencies(fn): Array<any> {
 	return matches[2].split(FN_ARG_SPLIT).map(arg => arg.trim())
 }
 
-export function checkDependencies(modules, path): void {
+export function checkDependencies(modules: Map<string, Module>, path: string[]): void {
 	const module = modules.get(path[path.length-1])
+	if (!module.dependencies) {
+		return
+	}
 	for (let i = 0; i < module.dependencies.length; i++) {
 		const dep = module.dependencies[i]
 		if (!modules.has(dep)) {

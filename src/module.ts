@@ -3,8 +3,7 @@ export class Module {
 	factory?: any
 	dependencies?: Array<any>
 	state?: 'resolved' | 'resolving'
-	resolvingPromise?: any
-	exported?: any
+	resolved?: any
 
 	constructor(name: string, factory?: any, dependencies?: Array<any>) {
 		this.name = name
@@ -12,9 +11,9 @@ export class Module {
 		this.dependencies = dependencies
 	}
 
-	static resolved(name, exported) {
+	static resolved(name: string, object: any) {
 		const module = new Module(name)
-		module.exported = exported
+		module.resolved = object
 		module.state = 'resolved'
 		return module
 	}

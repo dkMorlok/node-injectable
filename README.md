@@ -9,7 +9,8 @@ A simple library for dependency injection with support for ES6 generators. For m
 
 - supports ES6 classes
 - supports async functions
-- working with Typescript builds
+- working with Typescript
+
 
 ## Install
 
@@ -36,26 +37,22 @@ module.exports.createFoo = function() {
  * @injectable(bar)
  */
 module.exports.createBar = function(foo) {
-    return new Promise((resolve, reject) => {
-        resolve(foo + "bar")
-    })
+    return foo + "bar"
 }
 ```
 
 ### Step2: Create a Container a tell him where are your dependencies
 
 ```js
-let injectable = require('node-injectable')
-let container = new injectable.Container()
+const injectable = require('node-injectable')
+const container = new injectable.Container()
 container.lookup(['src/**/*.js']).then(() => {
-    container.resolve('foo').then((foo) => {
-        console.log(foo) // print "foo"
-    })
-    container.resolve('bar').then((bar) => {
-        console.log(bar) // print "foobar"
-    })
+    container.get('foo') // "foo"
+    container.get('bar') // "foobar"
 })
 ```
+- `lookup` scan files you want and automatically register all services
+- `lookup` can found only exported services
 
 
 ## Annotations
@@ -68,21 +65,21 @@ automatically by annotations you must provide **@injectable(NAME)** in comment.
 Your module will be registered as `bar` and have 2 dependencies `dep1` and `dep2` .
 ```js
 /**
- * @injectable(bar)
+ * @injectable(logger)
  */
 module.exports = function(dep1, dep2) {}
 ```
 
 ### Resolve by name
 
-You can specify better names than `dep1` or `dep2` with extra annotations.
+You can specify name of services to inject.
 ```js
 /**
  * @injectable(bar)
- * @param dep1 @inject(logger)
- * @param dep2 @inject(request)
+ * @param foo @inject(logger)
+ * @param bar @inject(request)
  */
-module.exports = function(dep1, dep2) {}
+module.exports = function(foo, bar) {}
 ```
 
 

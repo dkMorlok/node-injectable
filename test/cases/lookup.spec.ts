@@ -2,14 +2,14 @@ import { lookupFile } from '../../src/lookup'
 
 describe('Lookup', () => {
 
-	it('should find module', async () => {
+	test('should find module', async () => {
 		const parsed = await lookupFile(__dirname + '/../files/lookup/module.js')
 		expect(parsed.length).toBe(1)
 		expect(parsed[0].name).toBe('foo')
 		expect(typeof parsed[0].factory).toBe('function')
 	})
 
-	it('should find module functions', async () => {
+	test('should find module functions', async () => {
 		const parsed = await lookupFile(__dirname + '/../files/lookup/functions.js')
 		expect(parsed.length).toBe(5)
 
@@ -38,18 +38,18 @@ describe('Lookup', () => {
 		expect(typeof parsed[4].factory).toBe('function')
 	})
 
-	it('should find module class', async () => {
+	test('should find module class', async () => {
 		const parsed = await lookupFile(__dirname + '/../files/lookup/class-annotated.js')
 		expect(parsed[0].name).toBe('logger')
 		expect(typeof parsed[0].factory).toBe('function')
 	})
 
-	it('should dont find module class', async () => {
+	test('should dont find module class', async () => {
 		const parsed = await lookupFile(__dirname + '/../files/lookup/class-normal.js')
 		expect(parsed.length).toBe(0)
 	})
 
-	it('should find module classes', async () => {
+	test('should find module classes', async () => {
 		const parsed = await lookupFile(__dirname + '/../files/lookup/classes.js')
 
 		// not annotated injections

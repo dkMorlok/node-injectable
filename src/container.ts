@@ -9,28 +9,34 @@ const globAsync = promisify(glob)
 export class Container {
 
 	private modules: Map<string, Module> = new Map()
-	private resolving: Set<string> = new Set()
 
-	add<T>(name: string, service: T): void {
-		if (this.has(name)) {
-			throw new Error(`Module ${name} already registered`)
-		}
-		this.modules.set(name, Module.resolved(name, service))
-	}
-
-	get(name: string): Module | null {
-		return this.modules.get(name) || null
+	get<T>(name: string): T {
+		return this.resolve(name)
 	}
 
 	has(name: string): boolean {
 		return this.modules.has(name)
 	}
 
-	remove(name: string): void {
+	add<T>(name: string, service: T): Container {
+		if (this.has(name)) {
+			throw new Error(`Module ${name} already registered`)
+		}
+		this.modules.set(name, Module.resolved(name, service))
+		return this
+	}
+
+	set<T>(name: string, service: T): Container {
+		this.modules.set(name, Module.resolved(name, service))
+		return this
+	}
+
+	remove(name: string): Container {
 		if (!this.modules.has(name)) {
 			throw new Error(`Module ${name} not exists`)
 		}
 		this.modules.delete(name)
+		return this
 	}
 
 	register<T>(name: string, factory: any, dependencies?: string[]): void {
@@ -54,42 +60,36 @@ export class Container {
 		this.modules.set(name, new Module(name, factory, dependencies))
 	}
 
-	async resolve<T>(name): Promise<T> {
+	resolve<T>(name): T {
 		if (!this.has(name)) {
 			throw new Error(`Missing module ${name}`)
 		}
 
 		const module = this.modules.get(name)
 		if (module.state == 'resolved') {
-			return module.exported
-		}
-		if (module.state == 'resolving') {
-			return module.resolvingPromise;
-		}
-
-		const path = [module.name]
-		try {
-			checkDependencies(this.modules, path)
-		} catch (err) {
-			throw new Error(`Resolving module ${path.join(' -> ')} cause error ${err}`)
+			return module.resolved
+		} else if (module.state == 'resolving') {
+			throw new Error(`Module ${name} has cyclic dependency`)
 		}
 
-		this.resolving.add(name)
+		if (module.dependencies) {
+			const path = [name]
+			try {
+				checkDependencies(this.modules, path)
+			} catch (err) {
+				throw new Error(`Module ${path.join(' -> ')} cause error ${err}`)
+			}
+		}
+
 		module.state = 'resolving'
-		module.resolvingPromise = Promise.all(module.dependencies.map((dep) => {
-			return this.resolve(dep)
-		})).then((deps) => {
-			this.resolving.delete(name)
-			const exported = module.factory.apply(module.factory, deps)
-			module.state = 'resolved'
-			module.exported = exported
-			return exported
-		})
+		const deps = module.dependencies.map(dep => this.resolve(dep))
+		module.resolved = module.factory.apply(module.factory, deps)
+		module.state = 'resolved'
 
-		return module.resolvingPromise
+		return module.resolved
 	}
 
-	async inject<T>(factory: any, dependencies?: string[]): Promise<T> {
+	inject<T>(factory: any, dependencies?: string[]): T {
 		if (!factory || typeof factory !== 'function') {
 			throw new Error(`Factory param is not function. Got ${typeof factory}`)
 		}
@@ -97,15 +97,13 @@ export class Container {
 			dependencies = extractDependencies(factory)
 		}
 
-		if (/^\s*class\s+/.test(factory.toString())) {
-			const _factory = factory
-			factory = (...args: any[]) => {
-				return new _factory(...args)
-			}
-		}
+		const deps = dependencies.map(dep => this.resolve(dep))
 
-		const deps = await Promise.all(dependencies.map(dep => this.resolve(dep)))
-		return factory.apply(factory, deps)
+		if (/^\s*class\s+/.test(factory.toString())) {
+			return new factory(...deps)
+		} else {
+			return factory.apply(factory, deps)
+		}
 	}
 
 	async lookup(patterns: string | string[]): Promise<FileDefinitions[]> {
