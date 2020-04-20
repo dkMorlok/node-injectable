@@ -12,6 +12,13 @@ A simple library for dependency injection with support for ES6 generators. For m
 - working with Typescript
 
 
+## Migration from v2
+
+- Project was completely rewrite to Typescript.
+- `resolve` no longer returns Promise.
+- added method `get` as alias to `resolve`.
+
+
 ## Install
 
 ```
@@ -44,8 +51,9 @@ module.exports.createBar = function(foo) {
 ### Step2: Create a Container a tell him where are your dependencies
 
 ```js
-const injectable = require('node-injectable')
-const container = new injectable.Container()
+import { Container } from "node-injectable"
+
+const container = new Container()
 container.lookup(['src/**/*.js']).then(() => {
     container.get('foo') // "foo"
     container.get('bar') // "foobar"
