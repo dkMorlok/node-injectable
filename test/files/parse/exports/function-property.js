@@ -1,3 +1,5 @@
+exports.createClient = void 0; // exported like this in typescript 3.9+
+
 /**
  * @injectable(foo)
  */
