@@ -1,6 +1,6 @@
 {
   "name": "node-injectable",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Dependency injection for nodejs on steroids",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -11,7 +11,8 @@
     "build": "tsc",
     "test": "jest --verbose",
     "test:cover": "jest --verbose --coverage",
-    "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
