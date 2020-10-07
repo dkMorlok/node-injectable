@@ -130,5 +130,5 @@ function parseCommentAnnotations(comment: string) {
 }
 
 function createCommentRegexp(query: string[]) {
-	return new RegExp('((\\/\\/.*)|(\\/\\*(?:[\\s\\S](?!\\*\\/))*?\\s*\\*\\/)|\\s)+(' + query.join('|') + ')')
+	return new RegExp('((\\/\\/.*)|(\\/\\*(?:[\\s\\S](?!\\*\\/))*?\\s*\\*\\/))+\\s+(' + query.join('|') + ')')
 }
