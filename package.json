@@ -1,6 +1,6 @@
 {
   "name": "node-injectable",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "description": "Dependency injection for nodejs on steroids",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
