@@ -1,10 +1,7 @@
-import { glob } from 'multi-glob'
 import { extractDependencies, checkDependencies } from './helpers'
 import { Module } from './module'
 import { lookupFile } from './lookup'
-import { promisify } from 'util'
-
-const globAsync = promisify(glob)
+import { globAll } from './glob'
 
 export class Container {
 
@@ -106,9 +103,10 @@ export class Container {
 		}
 	}
 
-	async lookup(patterns: string | string[]): Promise<FileDefinitions[]> {
-		const files = await globAsync(patterns)
-		return Promise.all(files.map(file => this.lookupFile(file)))
+	lookup(patterns: string | string[]): Promise<FileDefinitions[]> {
+		return globAll(patterns).then((files) => {
+			return Promise.all(files.map(file => this.lookupFile(file)))
+		})
 	}
 
 	async lookupFile(file: string): Promise<FileDefinitions> {

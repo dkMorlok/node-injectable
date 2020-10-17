@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "caller": "^1.0.1",
-    "multi-glob": "^1.0.1"
+    "glob": "^7.1.6"
   },
   "devDependencies": {
     "@types/caller": "^1.0.0",
